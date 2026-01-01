@@ -1,39 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>OSINT TITAN - Network Graph</title>
+    <title>OSINT TITAN - Interactive Graph</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.24.0/cytoscape.min.js"></script>
     <style>
-        body { background-color: #0f0f0f; color: #00ff00; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
+        body { background-color: #050505; color: #00ff00; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
         #cy { width: 100vw; height: 100vh; display: block; }
-        .header { position: absolute; top: 10px; left: 10px; z-index: 10; background: rgba(0,0,0,0.7); padding: 10px; border: 1px solid #00ff00; }
+        .header { position: absolute; top: 15px; left: 15px; z-index: 10; background: rgba(0,20,0,0.9); padding: 15px; border: 1px solid #00ff00; box-shadow: 0 0 15px #00ff00; pointer-events: none; }
+        .footer { position: absolute; bottom: 10px; width: 100%; text-align: center; color: #008800; font-size: 10px; }
     </style>
 </head>
 <body>
-    <div class="header">OSINT TITAN: СВЯЗИ ОБЪЕКТА РАСКРЫТЫ</div>
+    <div class="header">OSINT TITAN: СВЯЗИ ОБЪЕКТА <span id="target-name">...</span></div>
     <div id="cy"></div>
+    <div class="footer">КЛИКНИТЕ НА УЗЕЛ, ЧТОБЫ ОТКРЫТЬ ПРОФИЛЬ</div>
+
     <script>
+        // 1. Получаем никнейм из ссылки (например ?user=danii)
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('user') || 'OBJECT';
+        document.getElementById('target-name').innerText = username.toUpperCase();
+
+        // 2. Настройка графа
         var cy = cytoscape({
             container: document.getElementById('cy'),
             elements: [ 
-                // Центральный узел (цель)
-                { data: { id: 'target', label: 'ОБЪЕКТ' } },
-                // Найденные данные (примеры)
-                { data: { id: 'ig', label: 'Instagram' } },
+                // Узлы (точки)
+                { data: { id: 'target', label: username } },
                 { data: { id: 'vk', label: 'VK.com' } },
-                { data: { id: 'db', label: 'Base_2024' } },
-                { data: { id: 'mail', label: 'Email_Found' } },
-                // Связи
-                { data: { source: 'target', target: 'ig' } },
+                { data: { id: 'ig', label: 'Instagram' } },
+                { data: { id: 'tg', label: 'Telegram' } },
+                { data: { id: 'fb', label: 'Facebook' } },
+                { data: { id: 'mail', label: 'E-mail' } },
+                
+                // Связи (линии)
                 { data: { source: 'target', target: 'vk' } },
-                { data: { source: 'ig', target: 'mail' } },
-                { data: { source: 'target', target: 'db' } }
+                { data: { source: 'target', target: 'ig' } },
+                { data: { source: 'target', target: 'tg' } },
+                { data: { source: 'target', target: 'fb' } },
+                { data: { source: 'ig', target: 'mail' } }
             ],
             style: [
-                { selector: 'node', style: { 'background-color': '#00ff00', 'label': 'data(label)', 'color': '#fff', 'width': 20, 'height': 20 } },
-                { selector: 'edge', style: { 'width': 2, 'line-color': '#005500', 'curve-style': 'bezier' } }
+                { selector: 'node', style: { 'background-color': '#00ff00', 'label': 'data(label)', 'color': '#00ff00', 'font-size': '14px', 'text-valign': 'bottom', 'text-margin-y': '5px', 'width': 20, 'height': 20, 'text-outline-width': 2, 'text-outline-color': '#000' } },
+                { selector: 'edge', style: { 'width': 2, 'line-color': '#004400', 'curve-style': 'bezier', 'target-arrow-color': '#004400', 'target-arrow-shape': 'triangle' } },
+                { selector: ':selected', style: { 'background-color': '#fff', 'line-color': '#fff' } }
             ],
             layout: { name: 'cose', animate: true }
+        });
+
+        // 3. ЛОГИКА КЛИКА (Как открыть ВК)
+        cy.on('tap', 'node', function(evt){
+            var node = evt.target;
+            var label = node.data('label');
+            
+            // Если нажали не на центр, а на соцсеть
+            if (node.id() !== 'target') {
+                let url = "";
+                if (label === 'VK.com') url = `https://vk.com/${username}`;
+                if (label === 'Instagram') url = `https://instagram.com/${username}`;
+                if (label === 'Telegram') url = `https://t.me/${username}`;
+                if (label === 'Facebook') url = `https://facebook.com/${username}`;
+                
+                if (url) {
+                    window.open(url, '_blank'); // Открывает ссылку в новом окне
+                }
+            }
         });
     </script>
 </body>
