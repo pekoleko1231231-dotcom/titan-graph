@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OSINT TITAN - Network Graph</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.24.0/cytoscape.min.js"></script>
+    <style>
+        body { background-color: #0f0f0f; color: #00ff00; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
+        #cy { width: 100vw; height: 100vh; display: block; }
+        .header { position: absolute; top: 10px; left: 10px; z-index: 10; background: rgba(0,0,0,0.7); padding: 10px; border: 1px solid #00ff00; }
+    </style>
+</head>
+<body>
+    <div class="header">OSINT TITAN: СВЯЗИ ОБЪЕКТА РАСКРЫТЫ</div>
+    <div id="cy"></div>
+    <script>
+        var cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: [ 
+                // Центральный узел (цель)
+                { data: { id: 'target', label: 'ОБЪЕКТ' } },
+                // Найденные данные (примеры)
+                { data: { id: 'ig', label: 'Instagram' } },
+                { data: { id: 'vk', label: 'VK.com' } },
+                { data: { id: 'db', label: 'Base_2024' } },
+                { data: { id: 'mail', label: 'Email_Found' } },
+                // Связи
+                { data: { source: 'target', target: 'ig' } },
+                { data: { source: 'target', target: 'vk' } },
+                { data: { source: 'ig', target: 'mail' } },
+                { data: { source: 'target', target: 'db' } }
+            ],
+            style: [
+                { selector: 'node', style: { 'background-color': '#00ff00', 'label': 'data(label)', 'color': '#fff', 'width': 20, 'height': 20 } },
+                { selector: 'edge', style: { 'width': 2, 'line-color': '#005500', 'curve-style': 'bezier' } }
+            ],
+            layout: { name: 'cose', animate: true }
+        });
+    </script>
+</body>
+</html>
